@@ -51,7 +51,7 @@
                 <td>{{ $societe->ville }}</td>
                 <td>{{ $societe->pays }}</td>
                 <td>
-                    <a href="{{ route('societes.show', $societe->id) }}" class="btn btn-info">Afficher</a>
+                    {{-- <a href="{{ route('societes.show', $societe->id) }}" class="btn btn-info">Afficher</a> --}}
                     <a href="{{ route('societes.edit', $societe->id) }}" class="btn btn-primary">Modifier</a>
                     @if (!$societe->invitation)
                         @can('societe-delete')

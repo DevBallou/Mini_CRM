@@ -8,6 +8,7 @@ use App\Models\Action;
 use App\Models\Employee;
 use App\Models\Invitation;
 use App\Models\Societe;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -19,7 +20,8 @@ class InvitationController extends Controller
      */
     public function index(Request $request)
     {
-        $data = Employee::orderBy('id', 'ASC')->paginate(10);
+        $confirmeInvitations = Invitation::select('employee_email')->where('confirme', 1);
+        $data = Employee::whereNotIn('email', $confirmeInvitations)->orderBy('id', 'ASC')->paginate(10);
 
         return view('admin.invitations.index', compact('data'))
                     ->with('i', ($request->input('page', 1) - 1) * 10);
@@ -81,9 +83,16 @@ class InvitationController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update($id)
+    public function update($email)
     {
+        $invitation = Invitation::where('employee_email', $email);
 
+        Action::create(['descriptif' => '"'. $email .'" à confirmer son profile']);
+
+        $invitation->update(['status' => 'l\'invitation est confirmée', 'confirme' => 1]);
+
+        return redirect()->route('invitations.index')
+                        ->with('success', 'L\'invitation à été confirmée avec success.');
     }
 
     /**
@@ -91,13 +100,14 @@ class InvitationController extends Controller
      */
     public function destroy($id)
     {
-        $invitation = Invitation::find($id);
-        $invitation->update(['status' => 'l\'invitation est confirmée', 'confirme' => 1]);
+        $employee = Employee::find($id);
 
-        Action::create(['descriptif' => '"'. $invitation->employee->name .'" à confirmer son profile']);
+        Action::create(['descriptif' => '"'. $employee->name .'" à annuler son profile']);
+
+        $employee->delete();
 
         return redirect()->route('invitations.index')
-                        ->with('success', 'L\'invitation à été confirmée avec success.');
+                        ->with('success', 'L\'invitation a été annulée avec succès.');
     }
 
     public function send_mail($societe, $name, $email)

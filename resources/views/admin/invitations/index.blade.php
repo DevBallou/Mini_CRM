@@ -49,13 +49,16 @@
                             @endif
                         </td>
                         <td>
-                            <a class="btn btn-info" href="{{ route('employees.show',$employee->id) }}">Afficher</a>
                             @if ($employee->invitation)
                                 @if (!$employee->invitation->confirme)
-                                    {!! Form::open(['method' => 'DELETE','route' => ['invitations.destroy', $employee->id],'style'=>'display:inline']) !!}
+                                    {!! Form::open(['method' => 'PATCH','route' => ['invitations.update', $employee->email],'style'=>'display:inline']) !!}
                                         {!! Form::submit('Confirmer', ['class' => 'btn btn-primary']) !!}
                                     {!! Form::close() !!}
                                 @endif
+                            @else
+                                {!! Form::open(['method' => 'DELETE','route' => ['invitations.destroy', $employee->id],'style'=>'display:inline']) !!}
+                                    {!! Form::submit('Annuler l\'invitation', ['class' => 'btn btn-danger']) !!}
+                                {!! Form::close() !!}
                             @endif
                         </td>
                     </tr>
